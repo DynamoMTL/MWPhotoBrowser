@@ -145,7 +145,7 @@
     if (!_enableGrid) _startOnGrid = NO;
 	
 	// View
-	self.view.backgroundColor = [UIColor blackColor];
+	self.view.backgroundColor = (_backgroundColor == nil) ? [UIColor blackColor] : _backgroundColor;
     self.view.clipsToBounds = YES;
 	
 	// Setup paging scrolling view
@@ -156,7 +156,7 @@
 	_pagingScrollView.delegate = self;
 	_pagingScrollView.showsHorizontalScrollIndicator = NO;
 	_pagingScrollView.showsVerticalScrollIndicator = NO;
-	_pagingScrollView.backgroundColor = [UIColor blackColor];
+	_pagingScrollView.backgroundColor = (_backgroundColor == nil) ? [UIColor blackColor] : _backgroundColor;
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
 	[self.view addSubview:_pagingScrollView];
 	
@@ -164,13 +164,13 @@
     _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:self.interfaceOrientation]];
     _toolbar.tintColor = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7") ? [UIColor whiteColor] : nil;
     if ([_toolbar respondsToSelector:@selector(setBarTintColor:)]) {
-        _toolbar.barTintColor = nil;
+        _toolbar.barTintColor = _toolbarTintColor;
     }
     if ([[UIToolbar class] respondsToSelector:@selector(appearance)]) {
-        [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
-        [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
+        [_toolbar setBackgroundImage:_toolbarBackgroundImage forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
+        [_toolbar setBackgroundImage:_toolbarBackgroundImage forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
     }
-    _toolbar.barStyle = UIBarStyleBlackTranslucent;
+
     _toolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
     
     // Toolbar Items
@@ -232,12 +232,21 @@
         UIViewController *previousViewController = [self.navigationController.viewControllers objectAtIndex:self.navigationController.viewControllers.count-2];
         NSString *backButtonTitle = previousViewController.navigationItem.backBarButtonItem ? previousViewController.navigationItem.backBarButtonItem.title : previousViewController.title;
         UIBarButtonItem *newBackButton = [[UIBarButtonItem alloc] initWithTitle:backButtonTitle style:UIBarButtonItemStylePlain target:nil action:nil];
+
+        if (_backButtonBackgroundImage) {
+            UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, _backButtonBackgroundImage.size.width, _backButtonBackgroundImage.size.height)];
+            newBackButton = [[UIBarButtonItem alloc] initWithCustomView:button];
+            newBackButton.title = @"   ";
+        } else {
+            newBackButton = [[UIBarButtonItem alloc] initWithTitle:backButtonTitle style:UIBarButtonItemStylePlain target:nil action:nil];
+        }
+
         // Appearance
         if ([UIBarButtonItem respondsToSelector:@selector(appearance)]) {
-            [newBackButton setBackButtonBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
-            [newBackButton setBackButtonBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhone];
-            [newBackButton setBackButtonBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
-            [newBackButton setBackButtonBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsLandscapePhone];
+            [newBackButton setBackButtonBackgroundImage:_backButtonBackgroundImage forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+            [newBackButton setBackButtonBackgroundImage:_backButtonBackgroundImage forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhone];
+            [newBackButton setBackButtonBackgroundImage:_backButtonBackgroundImage forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
+            [newBackButton setBackButtonBackgroundImage:_backButtonBackgroundImage forState:UIControlStateHighlighted barMetrics:UIBarMetricsLandscapePhone];
             [newBackButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateNormal];
             [newBackButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
         }
@@ -370,7 +379,7 @@
             [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:animated];
 #pragma clang diagnostic push
         } else {
-            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:animated];
+            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:animated];
         }
     }
     
@@ -448,14 +457,14 @@
     UINavigationBar *navBar = self.navigationController.navigationBar;
     navBar.tintColor = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7") ? [UIColor whiteColor] : nil;
     if ([navBar respondsToSelector:@selector(setBarTintColor:)]) {
-        navBar.barTintColor = nil;
+        navBar.barTintColor = _navigationBarTintColor;
         navBar.shadowImage = nil;
     }
     navBar.translucent = YES;
     navBar.barStyle = UIBarStyleBlackTranslucent;
     if ([[UINavigationBar class] respondsToSelector:@selector(appearance)]) {
-        [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
-        [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsLandscapePhone];
+        [navBar setBackgroundImage:_navigationBarBackgroundImage forBarMetrics:UIBarMetricsDefault];
+        [navBar setBackgroundImage:_navigationBarBackgroundImage forBarMetrics:UIBarMetricsLandscapePhone];
     }
 }
 
@@ -1660,6 +1669,32 @@
 		[alert show];
     }
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - Customize user interface
+
+- (void)changeNavigationBarTintColor:(UIColor *)color {
+    _navigationBarTintColor = [color copy];
+}
+
+- (void)changeNavigationBarBackgroundImage:(UIImage *)image {
+    _navigationBarBackgroundImage = [image copy];
+}
+
+- (void)changeBackgroundColor:(UIColor *)color {
+    _backgroundColor = [color copy];
+}
+
+- (void)changeToolbarTintColor:(UIColor *)color {
+    _toolbarTintColor = [color copy];
+}
+
+- (void)changeToolbarBackgroundImage:(UIImage *)image {
+    _toolbarBackgroundImage = [image copy];
+}
+
+- (void)changeBackButtonBackgroundImage:(UIImage *)image {
+    _backButtonBackgroundImage = [image copy];
 }
 
 @end

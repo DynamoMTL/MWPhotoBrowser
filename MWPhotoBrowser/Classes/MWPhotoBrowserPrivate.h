@@ -66,7 +66,14 @@
     BOOL _skipNextPagingScrollViewPositioning;
     BOOL _viewHasAppearedInitially;
     CGPoint _currentGridContentOffset;
-    
+
+    // Customize user interface
+    UIColor *_navigationBarTintColor;
+    UIImage *_navigationBarBackgroundImage;
+    UIColor *_toolbarTintColor;
+    UIImage *_toolbarBackgroundImage;
+    UIColor *_backgroundColor;
+    UIImage *_backButtonBackgroundImage;
 }
 
 // Properties
