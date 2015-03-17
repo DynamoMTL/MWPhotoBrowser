@@ -77,5 +77,6 @@
 - (void)changeBackButtonBackgroundImage:(UIImage *)image;
 - (void)changeDoneButtonBackgroundImage:(UIImage *)image;
 - (void)changeNavigationItemTitle:(NSString *)title;
+- (void)addToolbarCaption:(NSString *)caption withTextAttributes:(NSDictionary *)captionTextAttributes;
 
 @end

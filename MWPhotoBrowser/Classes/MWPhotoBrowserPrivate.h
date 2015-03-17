@@ -76,6 +76,8 @@
     UIImage *_backButtonBackgroundImage;
     UIImage *_doneButtonBackgroundImage;
     NSString *_navigationItemTitle;
+    NSString *_toolbarCaption;
+    NSDictionary *_toolbarCaptionTextAttributes;
 }
 
 // Properties

@@ -294,7 +294,24 @@
     }
 
     // Right - Action
-    if (_actionButton && !(!hasItems && !self.navigationItem.rightBarButtonItem)) {
+    if (_actionButton && !(!hasItems && !self.navigationItem.rightBarButtonItem))
+    {
+        // optional caption/hint
+        if(_toolbarCaption){
+            UIBarButtonItem *caption = [[UIBarButtonItem alloc] initWithTitle:_toolbarCaption
+                                                                        style:UIBarButtonItemStylePlain
+                                                                       target:nil
+                                                                       action:nil];
+            [caption setEnabled:NO];
+            [caption setTitleTextAttributes:_toolbarCaptionTextAttributes forState:UIControlStateNormal];
+            [items addObject:caption];
+            
+            // flex space
+            UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
+            [items addObject:flexSpace];
+        }
+
+        // action button
         [items addObject:_actionButton];
     } else {
         // We're not showing the toolbar so try and show in top right
@@ -1711,14 +1728,17 @@
     _backButtonBackgroundImage = [image copy];
 }
 
-- (void)changeDoneButtonBackgroundImage:(UIImage *)image
-{
+- (void)changeDoneButtonBackgroundImage:(UIImage *)image {
     _doneButtonBackgroundImage = [image copy];
 }
 
-- (void)changeNavigationItemTitle:(NSString *)title
-{
+- (void)changeNavigationItemTitle:(NSString *)title {
     _navigationItemTitle = [title copy];
+}
+
+- (void)addToolbarCaption:(NSString *)caption withTextAttributes:(NSDictionary *)captionTextAttributes {
+    _toolbarCaption = [caption copy];
+    _toolbarCaptionTextAttributes = [captionTextAttributes copy];
 }
 
 @end
