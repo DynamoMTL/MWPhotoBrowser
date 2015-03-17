@@ -75,5 +75,7 @@
 - (void)changeToolbarTintColor:(UIColor *)color;
 - (void)changeToolbarBackgroundImage:(UIImage *)image;
 - (void)changeBackButtonBackgroundImage:(UIImage *)image;
+- (void)changeDoneButtonBackgroundImage:(UIImage *)image;
+- (void)changeNavigationItemTitle:(NSString *)title;
 
 @end

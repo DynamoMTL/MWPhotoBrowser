@@ -215,18 +215,28 @@
     
     // Navigation buttons
     if ([self.navigationController.viewControllers objectAtIndex:0] == self) {
-        // We're first on stack so show done button
-        _doneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil) style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonPressed:)];
-        // Set appearance
-        if ([UIBarButtonItem respondsToSelector:@selector(appearance)]) {
-            [_doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
-            [_doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhone];
-            [_doneButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
-            [_doneButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsLandscapePhone];
-            [_doneButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateNormal];
-            [_doneButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
+        // replace done button with custom image if needed
+        if(_doneButtonBackgroundImage) {
+            UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 22, 22)];
+            [button setImage:_doneButtonBackgroundImage forState:UIControlStateNormal];
+            [button addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+            _doneButton = [[UIBarButtonItem alloc] initWithCustomView:button];;
+            self.navigationItem.rightBarButtonItem = _doneButton;
         }
-        self.navigationItem.rightBarButtonItem = _doneButton;
+        else {
+            // We're first on stack so show done button
+            _doneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil) style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonPressed:)];
+            // Set appearance
+            if ([UIBarButtonItem respondsToSelector:@selector(appearance)]) {
+                [_doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+                [_doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhone];
+                [_doneButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
+                [_doneButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsLandscapePhone];
+                [_doneButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateNormal];
+                [_doneButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
+            }
+            self.navigationItem.rightBarButtonItem = _doneButton;
+        }
     } else {
         // We're not first so show back button
         UIViewController *previousViewController = [self.navigationController.viewControllers objectAtIndex:self.navigationController.viewControllers.count-2];
@@ -316,6 +326,10 @@
     [self tilePages];
     _performingLayout = NO;
     
+    // add a custom navigation title if provided
+    if(_navigationItemTitle){
+        [self.navigationItem setTitle:_navigationItemTitle];
+    }
 }
 
 // Release any retained subviews of the main view.
@@ -1695,6 +1709,16 @@
 
 - (void)changeBackButtonBackgroundImage:(UIImage *)image {
     _backButtonBackgroundImage = [image copy];
+}
+
+- (void)changeDoneButtonBackgroundImage:(UIImage *)image
+{
+    _doneButtonBackgroundImage = [image copy];
+}
+
+- (void)changeNavigationItemTitle:(NSString *)title
+{
+    _navigationItemTitle = [title copy];
 }
 
 @end
