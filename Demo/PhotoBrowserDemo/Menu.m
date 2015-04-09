@@ -89,7 +89,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSInteger rows = 7;
+    NSInteger rows = 8;
     @synchronized(_assets) {
         if (_assets.count) rows++;
     }
@@ -148,6 +148,11 @@
             cell.detailTextLabel.text = @"photos from device library";
             break;
         }
+        case 8: {
+            cell.textLabel.text = @"Multiple photo grid";
+            cell.detailTextLabel.text = @"showing grid, nav arrows, slideshow enabled";
+            break;
+        }
 		default: break;
 	}
     return cell;
@@ -166,6 +171,7 @@
     BOOL displayActionButton = YES;
     BOOL displaySelectionButtons = NO;
     BOOL displayNavArrows = NO;
+    BOOL displaySlideShowButton = NO;
     BOOL enableGrid = YES;
     BOOL startOnGrid = NO;
 	switch (indexPath.row) {
@@ -1028,6 +1034,35 @@
             }
 			break;
         }
+        case 8: {
+            // Photos
+            photo = [MWPhoto photoWithImage:[UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"photo5" ofType:@"jpg"]]];
+            photo.caption = @"White Tower";
+            [photos addObject:photo];
+            photo = [MWPhoto photoWithURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"photo2" ofType:@"jpg"]]];
+            photo.caption = @"The London Eye is a giant Ferris wheel situated on the banks of the River Thames, in London, England.";
+            [photos addObject:photo];
+            photo = [MWPhoto photoWithURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"photo3" ofType:@"jpg"]]];
+            photo.caption = @"York Floods";
+            [photos addObject:photo];
+            photo = [MWPhoto photoWithImage:[UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"photo4" ofType:@"jpg"]]];
+            photo.caption = @"Campervan";
+            [photos addObject:photo];
+            // Thumbs
+            photo = [MWPhoto photoWithImage:[UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"photo5t" ofType:@"jpg"]]];
+            [thumbs addObject:photo];
+            photo = [MWPhoto photoWithImage:[UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"photo2t" ofType:@"jpg"]]];
+            [thumbs addObject:photo];
+            photo = [MWPhoto photoWithURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"photo3t" ofType:@"jpg"]]];
+            [thumbs addObject:photo];
+            photo = [MWPhoto photoWithURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"photo4t" ofType:@"jpg"]]];
+            [thumbs addObject:photo];
+            // Options
+            startOnGrid = YES;
+            displayNavArrows = YES;
+            displaySlideShowButton = YES;
+            break;
+        }
 		default: break;
 	}
     self.photos = photos;
@@ -1046,6 +1081,10 @@
     browser.enableGrid = enableGrid;
     browser.startOnGrid = startOnGrid;
     browser.enableSwipeToDismiss = YES;
+    browser.displaySlideshowButton = displaySlideShowButton;
+    if(displaySlideShowButton){
+        browser.durationPerSlide = 5.0;
+    }
     [browser setCurrentPhotoIndex:0];
     
     // Reset selections

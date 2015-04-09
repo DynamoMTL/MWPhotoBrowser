@@ -33,7 +33,7 @@
 	// Navigation & controls
 	UIToolbar *_toolbar;
 	NSTimer *_controlVisibilityTimer;
-	UIBarButtonItem *_previousButton, *_nextButton, *_actionButton, *_doneButton;
+	UIBarButtonItem *_previousButton, *_nextButton, *_actionButton, *_doneButton, *_toggleSlideShowButton;
     MBProgressHUD *_progressHUD;
     UIActionSheet *_actionsSheet;
     
@@ -78,6 +78,12 @@
     NSString *_navigationItemTitle;
     NSString *_toolbarCaption;
     NSDictionary *_toolbarCaptionTextAttributes;
+    
+    // Slide show
+    NSTimer *_slideShowTimer;
+    BOOL _isSlideShowPlaying;
+    BOOL _displaySlideshowButton;
+    NSTimeInterval _durationPerSlide;
 }
 
 // Properties

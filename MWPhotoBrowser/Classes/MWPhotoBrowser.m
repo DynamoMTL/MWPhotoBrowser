@@ -91,6 +91,10 @@
                                                  name:MWPHOTO_LOADING_DID_END_NOTIFICATION
                                                object:nil];
     
+    // slideshow startup options
+    _isSlideShowPlaying = NO;
+    _displaySlideshowButton = NO;
+    _durationPerSlide = 3.0; // add default duration
 }
 
 - (void)dealloc {
@@ -187,6 +191,9 @@
     if (self.displayActionButton) {
         _actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
     }
+    if(self.displaySlideshowButton) {
+       _toggleSlideShowButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Start Slideshow", nil) style:UIBarButtonItemStylePlain target:self action:@selector(toggleSlideshow)];
+    }
     
     // Update
     [self reloadData];
@@ -281,15 +288,34 @@
         [items addObject:fixedSpace];
     }
 
+    // Middle - Nav - Slideshow
+    if (_previousButton && _nextButton && _toggleSlideShowButton && numberOfPhotos > 1) {
+        hasItems = YES;
+        [items addObject:flexSpace];
+        [items addObject:_previousButton];
+        [items addObject:flexSpace];
+        [items addObject:_toggleSlideShowButton];
+        [items addObject:flexSpace];
+        [items addObject:_nextButton];
+        [items addObject:flexSpace];
+    } else
     // Middle - Nav
-    if (_previousButton && _nextButton && numberOfPhotos > 1) {
+    if (_previousButton && _nextButton && !_toggleSlideShowButton && numberOfPhotos > 1) {
         hasItems = YES;
         [items addObject:flexSpace];
         [items addObject:_previousButton];
         [items addObject:flexSpace];
         [items addObject:_nextButton];
         [items addObject:flexSpace];
-    } else {
+    } else
+    // Slide show button
+    if (!_previousButton && !_nextButton && _toggleSlideShowButton && numberOfPhotos > 1) {
+        hasItems = YES;
+        [items addObject:flexSpace];
+        [items addObject:_toggleSlideShowButton];
+        [items addObject:flexSpace];
+    }
+    else {
         [items addObject:flexSpace];
     }
 
@@ -359,6 +385,8 @@
     _previousButton = nil;
     _nextButton = nil;
     _progressHUD = nil;
+    _toggleSlideShowButton = nil;
+    _slideShowTimer = nil;
     [super viewDidUnload];
 }
 
@@ -460,6 +488,8 @@
     if (!_leaveStatusBarAlone && fullScreen && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
         [[UIApplication sharedApplication] setStatusBarStyle:_previousStatusBarStyle animated:animated];
     }
+    
+    [self stopSlideShow];
     
 	// Super
 	[super viewWillDisappear:animated];
@@ -1125,8 +1155,8 @@
 	// Buttons
 	_previousButton.enabled = (_currentPageIndex > 0);
 	_nextButton.enabled = (_currentPageIndex < numberOfPhotos - 1);
+    _toggleSlideShowButton.enabled = ([self numberOfPhotos] > 1);
     _actionButton.enabled = [[self photoAtIndex:_currentPageIndex] underlyingImage] != nil;
-	
 }
 
 - (void)jumpToPageAtIndex:(NSUInteger)index animated:(BOOL)animated {
@@ -1156,6 +1186,54 @@
 
 - (void)showNextPhotoAnimated:(BOOL)animated {
     [self jumpToPageAtIndex:_currentPageIndex+1 animated:animated];
+}
+
+- (void)toggleSlideshow {
+    if(_isSlideShowPlaying){
+        [self stopSlideShow];
+    }
+    else{
+        if(_slideShowTimer == nil){
+            _slideShowTimer = [NSTimer timerWithTimeInterval:_durationPerSlide
+                                                      target:self
+                                                    selector:@selector(handleSlideShowTimerEvent)
+                                                    userInfo:nil
+                                                     repeats:YES];
+        }
+        NSLog(@"Slideshow slide duration is set to %f", _durationPerSlide);
+
+        [_toggleSlideShowButton setTitle:NSLocalizedString(@"Stop Slideshow", nil)];
+        
+        // gives us some time to see the first image
+        [self performSelector:@selector(startSlideShow)
+                   withObject:nil
+                   afterDelay:_durationPerSlide];
+    }
+}
+
+- (void)startSlideShow {
+    if(!_isSlideShowPlaying){
+        [[NSRunLoop mainRunLoop] addTimer:_slideShowTimer forMode:NSRunLoopCommonModes];
+        _isSlideShowPlaying = YES;
+    }
+}
+
+- (void)stopSlideShow {
+    _isSlideShowPlaying = NO;
+    [_toggleSlideShowButton setTitle:NSLocalizedString(@"Start Slideshow", nil)];
+    if(_slideShowTimer != nil) {
+        [_slideShowTimer invalidate];
+        _slideShowTimer = nil;
+    }
+}
+
+- (void)handleSlideShowTimerEvent {
+    if(_currentPageIndex + 1 < [self numberOfPhotos]){
+        [self showNextPhotoAnimated:YES];
+    }
+    else{
+        [self jumpToPageAtIndex:0 animated:YES];
+    }
 }
 
 #pragma mark - Interactions
